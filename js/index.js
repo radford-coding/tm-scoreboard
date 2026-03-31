@@ -24,9 +24,9 @@
 		return contestants.length;
 	}
 
-	function removeContestant(idx) {
-		contestants.splice(idx, 1);
-	}
+	// function removeContestant(idx) {
+	// 	contestants.splice(idx, 1);
+	// }
 
 	function createContestantEl(con, id) {
 		var el = document.createElement("div");
@@ -68,13 +68,13 @@
 		});
 
 		var exit = document.createElement("button");
-		exit.classList.add("exit-button");
-		exit.innerText = "X";
-		exit.addEventListener("click", function() {
-			removeContestant(id - 1);
-			refreshContestants();
-			resize();
-		});
+		// exit.classList.add("exit-button");
+		// exit.innerText = "X";
+		// exit.addEventListener("click", function() {
+		// 	removeContestant(id - 1);
+		// 	refreshContestants();
+		// 	resize();
+		// });
 
 		fill.appendChild(shadow);
 		frameContainer.appendChild(fill);
@@ -228,9 +228,9 @@
 			main.appendChild(con.el);
 		}
 
-		if (!locked) {
-			main.appendChild(createAdd(contestants.length));
-		}
+		// if (!locked) {
+		// 	main.appendChild(createAdd(contestants.length));
+		// }
 	}
 
 	function ease(t, a, b) {
@@ -296,8 +296,12 @@
 
 	playButton.addEventListener("mouseup", play);
 
-	for (var i = 0; i < 5; ++i)
-		addContestant();
+	// for (var i = 0; i < 4; ++i)
+	// 	addContestant();
+	addContestant("./images/headshot_James_1.png");
+	addContestant("./images/headshot_Ash_copy.png");
+	addContestant("./images/headshot_Eric.png");
+	addContestant("./images/headshot_Chi.png");
 
 	refreshContestants();
 
