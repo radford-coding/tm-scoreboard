@@ -296,6 +296,13 @@
 
 	playButton.addEventListener("mouseup", play);
 
+	window.addEventListener('keydown', function (event) {
+		if (event.code === 'Space' || event.key === ' ') {
+			play();
+		}
+	});
+
+
 	// for (var i = 0; i < 4; ++i)
 	// 	addContestant();
 	addContestant("./images/headshot_James_1.png");
