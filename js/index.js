@@ -3,7 +3,7 @@
  * I wasn't configuring babel/webpack for a one off fun project.
  */
 
-(function() {
+(function () {
 	var contestants = [];
 
 	var locked = false;
@@ -53,8 +53,8 @@
 		frame.removeAttribute("width");
 		frame.removeAttribute("height");
 
-		frame.addEventListener("click", function() {
-			var cb = function(evt) {
+		frame.addEventListener("click", function () {
+			var cb = function (evt) {
 				if (fileInput.files && fileInput.files[0]) {
 					con.image = URL.createObjectURL(fileInput.files[0]);
 					fill.style.backgroundImage = "url(" + con.image + ")";
@@ -105,10 +105,10 @@
 		input.type = "number";
 
 		scoreContainer.isOpen = false;
-		scoreContainer.addEventListener("mouseup", function(evt) {
+		scoreContainer.addEventListener("mouseup", function (evt) {
 			scoreContainer.isOpen = !scoreContainer.isOpen;
 
-			if(scoreContainer.isOpen) {
+			if (scoreContainer.isOpen) {
 				scoreContainer.appendChild(input);
 				input.value = con.score;
 				input.focus();
@@ -118,7 +118,7 @@
 			}
 		});
 
-		var exit = function() {
+		var exit = function () {
 			scoreContainer.isOpen = false;
 			scoreContainer.removeChild(input);
 
@@ -131,17 +131,17 @@
 		};
 
 		input.addEventListener("focusout", exit);
-		input.addEventListener("onkeydown", function(evt) {
+		input.addEventListener("onkeydown", function (evt) {
 			if (evt.key === "Enter") {
 				exit();
 			}
 		});
 
-		input.addEventListener("mouseup", function(evt) {
+		input.addEventListener("mouseup", function (evt) {
 			evt.stopPropagation();
 			evt.stopImmediatePropagation();
 		});
-		
+
 		el.appendChild(frameScaler);
 		el.appendChild(scoreContainer);
 
@@ -150,7 +150,7 @@
 
 	function transformContestants() {
 
-		contestants.sort(function(first, second) {
+		contestants.sort(function (first, second) {
 			if (first.score < second.score) {
 				return -1;
 			} else if (first.score > second.score) {
@@ -160,12 +160,12 @@
 			}
 		});
 
-		
+
 		var maxScore = contestants[contestants.length - 1].score;
 		var maxCount = 1;
 
 		for (var i = contestants.length - 1; i > 0; --i) {
-			var con = contestants[i-1];
+			var con = contestants[i - 1];
 			if (con.score == maxScore) {
 				++maxCount;
 			}
@@ -191,7 +191,7 @@
 			}
 		}
 	}
-	
+
 	function createAdd(len) {
 		var res = document.createElement("button");
 
@@ -202,7 +202,7 @@
 		res.style.msTransform = "translateX(" + (275 * len + 30) + "px)";
 		res.style.transform = "translateX(" + (275 * len + 30) + "px)";
 
-		res.addEventListener("click", function() {
+		res.addEventListener("click", function () {
 			addContestant();
 			refreshContestants();
 			resize();
@@ -215,16 +215,16 @@
 		main.innerHTML = "";
 
 		for (var i = contestants.length; i > 0; --i) {
-			var con = contestants[i-1];
+			var con = contestants[i - 1];
 
 			var cEl = createContestantEl(con, i);
 			con.el = cEl;
 		}
 
 		if (contestants.length > 0) transformContestants();
-		
+
 		for (var i = contestants.length; i > 0; --i) {
-			var con = contestants[i-1];
+			var con = contestants[i - 1];
 			main.appendChild(con.el);
 		}
 
@@ -247,38 +247,38 @@
 
 		if (!locked) {
 			locked = true;
-			
+
 			document.body.classList.add("locked");
 
 			resize();
 		}
 
-		setTimeout(function() {
+		setTimeout(function () {
 			var start = 0;
-			var loop = function(dt) {
+			var loop = function (dt) {
 				if (start == 0) {
 					start = dt;
 				}
-	
+
 				for (var i = 0, l = contestants.length; i < l; ++i) {
 					var con = contestants[i];
-	
+
 					var startRemainder = con.oldScore - Math.floor(con.oldScore);
 					var endRemainder = con.score - Math.floor(con.score);
-	
+
 					var scoreEl = con.el.querySelector(".score");
-	
+
 					var score = Math.round(ease(Math.min((dt - start) / 2000, 1), Math.floor(con.oldScore), Math.floor(con.score)));
-	
+
 					if (dt - start < 1000) {
 						score += startRemainder;
 					} else {
 						score += endRemainder;
 					}
-	
+
 					scoreEl.innerText = score;
 				}
-	
+
 				if (dt - start < 2000) {
 					window.requestAnimationFrame(loop);
 				} else {
@@ -288,7 +288,7 @@
 					}
 				}
 			};
-	
+
 			window.requestAnimationFrame(loop);
 			transformContestants();
 		}, 1000);
