@@ -269,7 +269,7 @@ main {
 }
 
 .score-container {
-	cursor: text;
+	cursor: default;
 }
 
 .score {
@@ -357,23 +357,7 @@ noscript h1 {
 
 	cursor: pointer;
 
-	display: none;
-}
-
-#play-button::after {
-	content: "";
-
-	width: 0;
-	height: 0;
-
-	position: absolute;
-	top: 50%;
-	left: 50%;
-
-	border: 22px solid transparent;
-	border-left: 30px solid #fff;
-	margin-top: -22px;
-	margin-left: -10px;
+	opacity: 0;
 }
 
 .exit-button {
@@ -409,4 +393,147 @@ noscript h1 {
 	color: white;
 
 	cursor: pointer;
+}
+
+#score-table-container {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(20, 10, 8, 0.85);
+	padding: 4px 12px;
+	overflow-x: auto;
+	z-index: 1000;
+	max-height: 130px;
+	border-top: 2px solid rgba(255, 255, 255, 0.15);
+	transition: transform 0.35s ease;
+	-ms-transform: translateY(0);
+	transform: translateY(0);
+}
+
+#score-table-container.hidden {
+	-ms-transform: translateY(100%);
+	transform: translateY(100%);
+}
+
+#score-table-indicator {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 6px;
+	background: rgba(255, 215, 0, 0.2);
+	z-index: 999;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+#score-table-indicator.show {
+	opacity: 1;
+}
+
+#score-table-toolbar {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-align: center;
+	align-items: center;
+	padding: 2px 0;
+}
+
+#score-table-toolbar :first-child {
+	margin-right: auto;
+}
+
+.score-table-label {
+	color: white;
+	font-family: "veteran_typewriterregular", sans-serif;
+	font-size: 1rem;
+	font-weight: bold;
+	margin-right: 8px;
+}
+
+.round-btn {
+	background: rgba(255, 255, 255, 0.15);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	color: white;
+	font-family: "veteran_typewriterregular", sans-serif;
+	font-size: 1.4rem;
+	font-weight: bold;
+	cursor: pointer;
+	padding: 0 8px;
+	line-height: 1.6rem;
+	border-radius: 3px;
+	margin-right: 4px;
+}
+
+.round-btn:hover {
+	background: rgba(255, 255, 255, 0.3);
+}
+
+#score-table {
+	width: 100%;
+	border-collapse: collapse;
+	color: white;
+	font-family: "veteran_typewriterregular", sans-serif;
+	font-size: 1.3rem;
+	margin-top: 2px;
+}
+
+#score-table th, #score-table td {
+	padding: 1px 8px;
+	text-align: center;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	white-space: nowrap;
+	color: white;
+}
+
+#score-table .table-label {
+	text-align: center;
+	font-weight: bold;
+	min-width: 70px;
+	color: white;
+}
+
+#score-table .table-round-header {
+	font-size: 1.1rem;
+	color: white;
+	font-weight: normal;
+}
+
+#score-table .table-cumulative-header {
+	font-weight: bold;
+	color: white;
+}
+
+.table-score-input {
+	width: 50px;
+	text-align: center;
+	border: none;
+	background: transparent;
+	color: white;
+	font-family: "veteran_typewriterregular", sans-serif;
+	font-size: 1.3rem;
+	padding: 1px 0;
+	box-sizing: border-box;
+	-moz-appearance: textfield;
+}
+
+.table-score-input::-webkit-outer-spin-button,
+.table-score-input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.table-score-input:focus {
+	background: rgba(255, 255, 255, 0.1);
+	outline: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.table-cumulative {
+	font-weight: bold;
+	color: white;
+}
+
+#score-table tbody tr:hover {
+	background: rgba(255, 255, 255, 0.05);
 }

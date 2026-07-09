@@ -7,26 +7,51 @@
 	var contestants = [];
 
 	var locked = false;
+	var roundCount = 0;
+	var roundLabels = [];
 
 	var main = document.querySelector("main");
 	var fileInput = document.querySelector("#file-input");
 	var playButton = document.querySelector("#play-button");
+	var tableContainer = document.querySelector("#score-table-container");
+	var tableIndicator = document.querySelector("#score-table-indicator");
 
 	function addContestant(image) {
 		var contestant = {};
 
 		contestant.image = !!image ? image : "./images/blank.jpg";
+		contestant.name = getNameFromImage(contestant.image);
+		contestant.roundScores = [];
 		contestant.score = 0;
 		contestant.oldScore = 0;
+
+		for (var i = 0; i < roundCount; i++) {
+			contestant.roundScores.push(0);
+		}
 
 		contestants.push(contestant);
 
 		return contestants.length;
 	}
 
+	function getNameFromImage(image) {
+		if (!image) return "Contestant " + (contestants.length + 1);
+		var parts = image.split("/");
+		var filename = parts[parts.length - 1];
+		return filename.replace(/\.[^/.]+$/, "");
+	}
+
 	// function removeContestant(idx) {
 	// 	contestants.splice(idx, 1);
 	// }
+
+	function getCumulative(con) {
+		var total = 0;
+		for (var i = 0; i < con.roundScores.length; i++) {
+			total += con.roundScores[i];
+		}
+		return total;
+	}
 
 	function createContestantEl(con, id) {
 		var el = document.createElement("div");
@@ -100,48 +125,6 @@
 		scoreContainer.appendChild(seal);
 		scoreContainer.appendChild(score);
 
-		var input = document.createElement("input");
-		input.classList.add("score-edit");
-		input.type = "number";
-
-		scoreContainer.isOpen = false;
-		scoreContainer.addEventListener("mouseup", function (evt) {
-			scoreContainer.isOpen = !scoreContainer.isOpen;
-
-			if (scoreContainer.isOpen) {
-				scoreContainer.appendChild(input);
-				input.value = con.score;
-				input.focus();
-				input.select();
-			} else {
-				scoreContainer.removeChild(input);
-			}
-		});
-
-		var exit = function () {
-			scoreContainer.isOpen = false;
-			scoreContainer.removeChild(input);
-
-			var score = !!input.value ? parseFloat(input.value) : 0;
-
-			if (con.score != score) {
-				con.score = score;
-				showPlay();
-			}
-		};
-
-		input.addEventListener("focusout", exit);
-		input.addEventListener("onkeydown", function (evt) {
-			if (evt.key === "Enter") {
-				exit();
-			}
-		});
-
-		input.addEventListener("mouseup", function (evt) {
-			evt.stopPropagation();
-			evt.stopImmediatePropagation();
-		});
-
 		el.appendChild(frameScaler);
 		el.appendChild(scoreContainer);
 
@@ -211,6 +194,144 @@
 		return res;
 	}
 
+	function rebuildScoreTable() {
+		tableContainer.innerHTML = "";
+
+		var toolbar = document.createElement("div");
+		toolbar.id = "score-table-toolbar";
+
+		var label = document.createElement("span");
+		label.className = "score-table-label";
+		label.innerText = "Scores";
+		toolbar.appendChild(label);
+
+		var addBtn = document.createElement("button");
+		addBtn.className = "round-btn";
+		addBtn.innerText = "+";
+		addBtn.title = "Add round";
+		addBtn.addEventListener("click", function () {
+			roundCount++;
+			roundLabels.push("task " + roundCount);
+			for (var i = 0; i < contestants.length; i++) {
+				contestants[i].roundScores.push(0);
+			}
+			rebuildScoreTable();
+		});
+		toolbar.appendChild(addBtn);
+
+		var removeBtn = document.createElement("button");
+		removeBtn.className = "round-btn";
+		removeBtn.innerText = "-";
+		removeBtn.title = "Remove last round";
+		if (roundCount <= 0) removeBtn.style.display = "none";
+		removeBtn.addEventListener("click", function () {
+			if (roundCount <= 0) return;
+			roundCount--;
+			roundLabels.pop();
+			for (var i = 0; i < contestants.length; i++) {
+				contestants[i].roundScores.pop();
+			}
+			for (var i = 0; i < contestants.length; i++) {
+				var total = getCumulative(contestants[i]);
+				if (contestants[i].score != total) {
+					contestants[i].score = total;
+				}
+			}
+			rebuildScoreTable();
+		});
+		toolbar.appendChild(removeBtn);
+
+		var toggleBtn = document.createElement("button");
+		toggleBtn.className = "round-btn toggle-btn";
+		toggleBtn.innerText = "Hide";
+		toggleBtn.title = "Hide table";
+		toggleBtn.addEventListener("click", function () {
+			toggleTable();
+		});
+		toolbar.appendChild(toggleBtn);
+
+		tableContainer.appendChild(toolbar);
+
+		var table = document.createElement("table");
+		table.id = "score-table";
+
+		var thead = document.createElement("thead");
+		var headerRow = document.createElement("tr");
+
+		var th = document.createElement("th");
+		th.className = "table-label";
+		headerRow.appendChild(th);
+
+		for (var r = 0; r < roundCount; r++) {
+			(function (roundIdx) {
+				var th = document.createElement("th");
+				th.className = "table-round-header";
+				th.innerText = roundLabels[roundIdx];
+				th.contentEditable = true;
+				th.addEventListener("blur", function () {
+					roundLabels[roundIdx] = this.innerText;
+				});
+				headerRow.appendChild(th);
+			})(r);
+		}
+
+		var th = document.createElement("th");
+		th.className = "table-cumulative-header";
+		th.innerText = "Total";
+		headerRow.appendChild(th);
+
+		thead.appendChild(headerRow);
+		table.appendChild(thead);
+
+		var tbody = document.createElement("tbody");
+		for (var i = 0; i < contestants.length; i++) {
+			var con = contestants[i];
+			var row = document.createElement("tr");
+
+			var td = document.createElement("td");
+			td.className = "table-label";
+			td.innerText = con.name;
+			row.appendChild(td);
+
+			for (var r = 0; r < roundCount; r++) {
+				(function (conIdx, roundIdx) {
+					var td = document.createElement("td");
+					var input = document.createElement("input");
+					input.type = "number";
+					input.className = "table-score-input";
+					input.value = contestants[conIdx].roundScores[roundIdx];
+					input.addEventListener("input", function () {
+						var prevTotal = getCumulative(contestants[conIdx]);
+						var val = parseFloat(this.value) || 0;
+						contestants[conIdx].roundScores[roundIdx] = val;
+						var newTotal = getCumulative(contestants[conIdx]);
+						var cumCell = this.parentNode.parentNode.querySelector(".table-cumulative");
+						cumCell.innerText = newTotal;
+						if (prevTotal != newTotal) {
+							contestants[conIdx].score = newTotal;
+						}
+					});
+					td.appendChild(input);
+					td.addEventListener("mouseup", function () {
+						input.focus();
+						input.select();
+					});
+					row.appendChild(td);
+				})(i, r);
+			}
+
+			var td = document.createElement("td");
+			td.className = "table-cumulative";
+			td.innerText = getCumulative(con);
+			row.appendChild(td);
+
+			tbody.appendChild(row);
+		}
+		table.appendChild(tbody);
+
+		tableContainer.appendChild(table);
+	}
+
 	function refreshContestants() {
 		main.innerHTML = "";
 
@@ -231,6 +352,8 @@
 		// if (!locked) {
 		// 	main.appendChild(createAdd(contestants.length));
 		// }
+
+		rebuildScoreTable();
 	}
 
 	function ease(t, a, b) {
@@ -238,13 +361,7 @@
 		return (b - a) * eased + a;
 	}
 
-	function showPlay() {
-		playButton.style.display = "block";
-	}
-
 	function play() {
-		playButton.style.display = "none";
-
 		if (!locked) {
 			locked = true;
 
@@ -302,13 +419,30 @@
 		}
 	});
 
+	function toggleTable() {
+		var isHidden = tableContainer.classList.toggle("hidden");
+		tableIndicator.classList.toggle("show", isHidden);
+		var toggleBtn = document.querySelector("#score-table-toolbar .toggle-btn");
+		if (toggleBtn) toggleBtn.innerText = isHidden ? "Show" : "Hide";
+	}
 
-	// for (var i = 0; i < 4; ++i)
-	// 	addContestant();
-	addContestant("./images/headshot_James_1.png");
-	addContestant("./images/headshot_Ash_copy.png");
-	addContestant("./images/headshot_Eric.png");
-	addContestant("./images/headshot_Chi.png");
+	window.addEventListener('keydown', function (event) {
+		if (event.code === 'KeyT' || event.key === 't' || event.key === 'T') {
+			toggleTable();
+		}
+	});
+
+	tableIndicator.addEventListener("mouseup", toggleTable);
+
+
+	// TASKS
+	roundLabels = ["prize", "prediction", "smile", "jar", "roll", "story", "duck", "live"];
+	roundCount = roundLabels.length;
+	// CONTESTANTS
+	addContestant("./images/Ash.png");
+	addContestant("./images/Robert.png");
+	addContestant("./images/John.png");
+	addContestant("./images/Margaret.png");
 
 	refreshContestants();
 
