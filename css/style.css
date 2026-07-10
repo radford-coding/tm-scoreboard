@@ -498,6 +498,23 @@ noscript h1 {
 	font-size: 1.1rem;
 	color: white;
 	font-weight: normal;
+	white-space: nowrap;
+}
+
+.round-reset-btn {
+	background: none;
+	border: none;
+	color: rgba(255, 255, 255, 0.4);
+	font-size: 1.2rem;
+	cursor: pointer;
+	padding: 0 2px;
+	margin: 0;
+	line-height: 1;
+	vertical-align: middle;
+}
+
+.round-reset-btn:hover {
+	color: white;
 }
 
 #score-table .table-cumulative-header {

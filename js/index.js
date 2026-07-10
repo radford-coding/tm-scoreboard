@@ -271,6 +271,21 @@
 				th.addEventListener("blur", function () {
 					roundLabels[roundIdx] = this.innerText;
 				});
+
+				var resetBtn = document.createElement("button");
+				resetBtn.className = "round-reset-btn";
+				resetBtn.innerText = "\u21BB";
+				resetBtn.title = "Reset column scores";
+				resetBtn.addEventListener("click", function (e) {
+					e.stopPropagation();
+					for (var i = 0; i < contestants.length; i++) {
+						contestants[i].roundScores[roundIdx] = 0;
+						contestants[i].score = getCumulative(contestants[i]);
+					}
+					rebuildScoreTable();
+				});
+				th.appendChild(resetBtn);
+
 				headerRow.appendChild(th);
 			})(r);
 		}
@@ -450,7 +465,7 @@
 		var w = window.innerWidth;
 		var h = window.innerHeight;
 
-		var wm = 1400 * ((contestants.length + (locked ? 0 : 0.25)) / 5);
+		var wm = 1400 * (contestants.length / 5);
 
 		var m = Math.min(w / wm, h / 1080);
 
