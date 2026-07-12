@@ -454,10 +454,10 @@
 	roundLabels = ["prize", "prediction", "smile", "jar", "roll", "story", "duck", "live"];
 	roundCount = roundLabels.length;
 	// CONTESTANTS
-	addContestant("./images/Ash.png");
 	addContestant("./images/Robert.png");
 	addContestant("./images/John.png");
 	addContestant("./images/Margaret.png");
+	addContestant("./images/Ash.png");
 
 	refreshContestants();
 
