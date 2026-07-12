@@ -269,7 +269,7 @@
 				th.innerText = roundLabels[roundIdx];
 				th.contentEditable = true;
 				th.addEventListener("blur", function () {
-					roundLabels[roundIdx] = this.innerText;
+					roundLabels[roundIdx] = this.innerText.replace(/\u21BB/g, "");
 				});
 
 				var resetBtn = document.createElement("button");
@@ -278,6 +278,7 @@
 				resetBtn.title = "Reset column scores";
 				resetBtn.addEventListener("click", function (e) {
 					e.stopPropagation();
+					console.log("click");
 					for (var i = 0; i < contestants.length; i++) {
 						contestants[i].roundScores[roundIdx] = 0;
 						contestants[i].score = getCumulative(contestants[i]);
