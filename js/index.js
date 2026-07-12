@@ -5,6 +5,7 @@
 
 (function () {
 	var contestants = [];
+	var nextContestantId = 0;
 
 	var locked = false;
 	var roundCount = 0;
@@ -24,6 +25,7 @@
 		contestant.roundScores = [];
 		contestant.score = 0;
 		contestant.oldScore = 0;
+		contestant.originalIndex = nextContestantId++;
 
 		for (var i = 0; i < roundCount; i++) {
 			contestant.roundScores.push(0);
@@ -299,9 +301,13 @@
 		thead.appendChild(headerRow);
 		table.appendChild(thead);
 
+		var sortedByOriginal = contestants.slice().sort(function (a, b) {
+			return a.originalIndex - b.originalIndex;
+		});
+
 		var tbody = document.createElement("tbody");
-		for (var i = 0; i < contestants.length; i++) {
-			var con = contestants[i];
+		for (var i = 0; i < sortedByOriginal.length; i++) {
+			var con = sortedByOriginal[i];
 			var row = document.createElement("tr");
 
 			var td = document.createElement("td");
@@ -310,21 +316,21 @@
 			row.appendChild(td);
 
 			for (var r = 0; r < roundCount; r++) {
-				(function (conIdx, roundIdx) {
+				(function (con, roundIdx) {
 					var td = document.createElement("td");
 					var input = document.createElement("input");
 					input.type = "number";
 					input.className = "table-score-input";
-					input.value = contestants[conIdx].roundScores[roundIdx];
+					input.value = con.roundScores[roundIdx];
 					input.addEventListener("input", function () {
-						var prevTotal = getCumulative(contestants[conIdx]);
+						var prevTotal = getCumulative(con);
 						var val = parseFloat(this.value) || 0;
-						contestants[conIdx].roundScores[roundIdx] = val;
-						var newTotal = getCumulative(contestants[conIdx]);
+						con.roundScores[roundIdx] = val;
+						var newTotal = getCumulative(con);
 						var cumCell = this.parentNode.parentNode.querySelector(".table-cumulative");
 						cumCell.innerText = newTotal;
 						if (prevTotal != newTotal) {
-							contestants[conIdx].score = newTotal;
+							con.score = newTotal;
 						}
 					});
 					td.appendChild(input);
@@ -333,7 +339,7 @@
 						input.select();
 					});
 					row.appendChild(td);
-				})(i, r);
+				})(con, r);
 			}
 
 			var td = document.createElement("td");
