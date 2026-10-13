@@ -577,6 +577,7 @@ noscript h1 {
 	padding: 1px 0;
 	box-sizing: border-box;
 	-moz-appearance: textfield;
+	appearance: textfield;
 }
 
 .table-score-input::-webkit-outer-spin-button,
