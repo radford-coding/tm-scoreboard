@@ -11,6 +11,9 @@
 	var roundCount = 0;
 	var roundLabels = [];
 
+	var pointGainMinSize = 40;
+	var pointGainMaxSize = 84;
+
 	var main = document.querySelector("main");
 	var fileInput = document.querySelector("#file-input");
 	var playButton = document.querySelector("#play-button");
@@ -321,6 +324,8 @@
 					var input = document.createElement("input");
 					input.type = "number";
 					input.className = "table-score-input";
+					input.setAttribute("data-row", i);
+					input.setAttribute("data-col", roundIdx);
 					input.value = con.roundScores[roundIdx];
 					input.addEventListener("input", function () {
 						var prevTotal = getCumulative(con);
@@ -350,6 +355,52 @@
 			tbody.appendChild(row);
 		}
 		table.appendChild(tbody);
+
+		table.addEventListener("keydown", function (e) {
+			var key = e.key || "";
+
+			if (key !== "Tab" && e.keyCode !== 9) return;
+
+			var input = e.target;
+
+			if (!input || input.className.indexOf("table-score-input") === -1) return;
+
+			var inputRow = parseInt(input.getAttribute("data-row"), 10);
+			var inputCol = parseInt(input.getAttribute("data-col"), 10);
+			var rowCount = sortedByOriginal.length;
+
+			var nextRow = inputRow;
+			var nextCol = inputCol;
+
+			if (e.shiftKey) {
+				if (inputRow > 0) {
+					nextRow = inputRow - 1;
+				} else if (inputCol > 0) {
+					nextRow = rowCount - 1;
+					nextCol = inputCol - 1;
+				} else {
+					return;
+				}
+			} else {
+				if (inputRow < rowCount - 1) {
+					nextRow = inputRow + 1;
+				} else if (inputCol < roundCount - 1) {
+					nextRow = 0;
+					nextCol = inputCol + 1;
+				} else {
+					return;
+				}
+			}
+
+			e.preventDefault();
+
+			var next = table.querySelector('.table-score-input[data-row="' + nextRow + '"][data-col="' + nextCol + '"]');
+
+			if (next) {
+				next.focus();
+				next.select();
+			}
+		});
 
 		tableContainer.appendChild(table);
 	}
@@ -381,6 +432,32 @@
 	function ease(t, a, b) {
 		var eased = t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 		return (b - a) * eased + a;
+	}
+
+	function showPointsGain(con, minGain, maxGain) {
+		var delta = con.score - con.oldScore;
+
+		if (Math.abs(delta) < 0.001) return;
+
+		delta = Math.round(delta * 100) / 100;
+
+		var size = pointGainMaxSize;
+
+		if (maxGain > minGain) {
+			var ratio = (delta - minGain) / (maxGain - minGain);
+			size = pointGainMinSize + (pointGainMaxSize - pointGainMinSize) * ratio;
+		}
+
+		var el = document.createElement("div");
+		el.classList.add("point-gain");
+		el.innerText = (delta > 0 ? "+" : "") + delta;
+		el.style.fontSize = size + "px";
+
+		con.el.querySelector(".score-container").appendChild(el);
+
+		setTimeout(function () {
+			if (el.parentNode) el.parentNode.removeChild(el);
+		}, 8000);
 	}
 
 	function play() {
@@ -428,8 +505,23 @@
 				}
 			};
 
+			var minGain = Infinity;
+			var maxGain = -Infinity;
+
+			for (var i = 0, l = contestants.length; i < l; ++i) {
+				var gain = Math.round((contestants[i].score - contestants[i].oldScore) * 100) / 100;
+				if (Math.abs(gain) < 0.001) continue;
+				if (gain < minGain) minGain = gain;
+				if (gain > maxGain) maxGain = gain;
+			}
+
+			for (var i = 0, l = contestants.length; i < l; ++i) {
+				showPointsGain(contestants[i], minGain, maxGain);
+			}
+
 			window.requestAnimationFrame(loop);
-			transformContestants();
+
+			setTimeout(transformContestants, 2000);
 		}, 1000);
 	}
 
