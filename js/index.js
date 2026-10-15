@@ -413,6 +413,7 @@
 
 			var cEl = createContestantEl(con, i);
 			con.el = cEl;
+			if (con.crowned) applyCrown(con);
 		}
 
 		if (contestants.length > 0) transformContestants();
@@ -427,6 +428,78 @@
 		// }
 
 		rebuildScoreTable();
+	}
+
+	function tableIsFull() {
+		if (roundCount <= 0 || contestants.length <= 0) return false;
+
+		var inputs = tableContainer.querySelectorAll(".table-score-input");
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].value === "") return false;
+		}
+
+		return true;
+	}
+
+	function getWinners() {
+		var maxScore = -Infinity;
+		for (var i = 0; i < contestants.length; i++) {
+			if (contestants[i].score > maxScore) {
+				maxScore = contestants[i].score;
+			}
+		}
+
+		var winners = [];
+		for (var i = 0; i < contestants.length; i++) {
+			if (contestants[i].score === maxScore) {
+				winners.push(contestants[i]);
+			}
+		}
+
+		return winners;
+	}
+
+	function applyCrown(con) {
+		var frameContainer = con.el.querySelector(".frame-container");
+		if (!frameContainer || frameContainer.querySelector(".crown")) return;
+
+		var crown = document.createElement("img");
+		crown.className = "crown";
+		crown.src = "./images/crown.png";
+		frameContainer.appendChild(crown);
+		console.log("crowned");
+	}
+
+	function addCrown(con) {
+		con.crowned = true;
+		applyCrown(con);
+	}
+
+	function removeCrown(con) {
+		con.crowned = false;
+
+		var frameContainer = con.el.querySelector(".frame-container");
+		if (!frameContainer) return;
+
+		var crown = frameContainer.querySelector(".crown");
+		if (crown) crown.parentNode.removeChild(crown);
+	}
+
+	function toggleWinnerCrown() {
+		if (!tableIsFull()) return;
+
+		var winners = getWinners();
+		var alreadyCrowned = winners.some(function (con) {
+			return con.crowned;
+		});
+
+		winners.forEach(function (con) {
+			if (alreadyCrowned) {
+				removeCrown(con);
+			} else {
+				addCrown(con);
+			}
+		});
 	}
 
 	function ease(t, a, b) {
@@ -543,6 +616,22 @@
 	window.addEventListener('keydown', function (event) {
 		if (event.code === 'KeyT' || event.key === 't' || event.key === 'T') {
 			toggleTable();
+		}
+	});
+
+	window.addEventListener('keydown', function (event) {
+		if (event.code === 'KeyW' || event.key === 'w' || event.key === 'W') {
+			var active = document.activeElement;
+			if (
+				active &&
+				(active.tagName === 'INPUT' ||
+					active.tagName === 'TEXTAREA' ||
+					active.isContentEditable)
+			) {
+				return;
+			}
+
+			toggleWinnerCrown();
 		}
 	});
 

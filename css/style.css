@@ -217,6 +217,19 @@ main {
 	cursor: pointer;
 }
 
+.crown {
+	position: absolute;
+	top: -190px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 10;
+	display: block;
+	width: 48px;
+	height: auto;
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+	pointer-events: none;
+}
+
 .frame {
 	transform: translateZ(0);
 }
