@@ -639,12 +639,12 @@
 
 
 	// TASKS
-	roundLabels = ["prize", "prediction", "smile", "jar", "roll", "story", "duck", "live"];
+	roundLabels = ["prize", "dance", "sculpture", "leaf", "interrogation", "set-task-do-task", "draw duck", "live"];
 	roundCount = roundLabels.length;
 	// CONTESTANTS
-	addContestant("./images/Robert.png");
-	addContestant("./images/John.png");
-	addContestant("./images/Margaret.png");
+	addContestant("./images/James.png");
+	addContestant("./images/Christopher.png");
+	addContestant("./images/Nikki.png");
 	addContestant("./images/Ash.png");
 
 	refreshContestants();
